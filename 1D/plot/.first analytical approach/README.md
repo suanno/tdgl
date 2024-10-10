@@ -1,0 +1,2 @@
+This is a **failure approach** (see the folder /notes/ for details) to take into account C(t) oscillations.
+It is a failure as requiring the equations are solvable, we constrain the shape of C(t) to be a specific function (that decays to zero and does not oscillate).
