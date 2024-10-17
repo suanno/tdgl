@@ -187,7 +187,7 @@ double* Times = malloc(num_saves*sizeof(double)); /*Times of saves*/
 double* uAve = malloc(num_saves*sizeof(double));			/*Space average of u(t) values*/
 double* q2Ave = malloc(num_saves*sizeof(double));
 double* grad2 = malloc(num_saves*sizeof(double));
-double* kik_dist = malloc(num_saves*sizeof(double));
+double* kik_dist = malloc(num_saves*sizeof(double)); double xk,x1,x2,u1,u2;
 int found_kink = 0;
 
 ttime=0;
@@ -333,11 +333,24 @@ for (loop=0; loop < nloop; loop++){
 		/*Compute the distance between the zeros of u(x)*/
 		kik_dist[index_saves] = 0;
 		found_kink = 0;
-		for (i=(int)(N/2); i < N; i++){
-			if (u[i] < 0 && found_kink == 0){
-				kik_dist[index_saves] = (i-(int)(N/2))*dx*2;
+		i = (int)(N/2);
+		xk = 0;
+		while (found_kink == 0 && i < N){
+			// Estimate the position of the zero x=xk (y0=0) with a linear fit
+			// We store the value of y until we find y<0, so we can use the previous value to do the fit
+			if (u[i] < 0){
+				x1 = x2;
+				x2 = (i-(int)(N/2))*dx;
+				u1 = u2;
+				u2 = u[i];
+				xk = x1 + (u1/(u1-u2))*dx;
+				//printf("%lf\n", u1*u2);
+				kik_dist[index_saves] = 2*xk;
 				found_kink = 1;
 			}
+			x2 = (i-(int)(N/2))*dx;
+			u2 = u[i];
+			i = i + 1;
 		}
 		/*Compute the second space derivative (it is zero at the kinks positions)
 		//INVERSE FFT of -q2*F(u)
@@ -352,7 +365,7 @@ for (loop=0; loop < nloop; loop++){
 		//Look for the zeros
 		kik_dist[index_saves] = 0;
 		found_kink = 0;
-		for (i=(int)(N/2); i < N; i++){
+		for (i=(int)(N/2); i < N; i++){<
 			if (uxx[i] > 0 && found_kink == 0){
 				kik_dist[index_saves] = (i-(int)(N/2))*dx*2;
 				found_kink = 1;

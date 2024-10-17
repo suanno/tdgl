@@ -13,7 +13,7 @@ The black marks on the top-left plot, highlight **the zeros of** the function $u
 The value $t_c$ is the annhilation time. The value used to calculate the x-axis data from the data of $t$ is **extimated** by searching **the first time** that $d(t_c) < dx$.
 
 [the frame of the animation are captured each 1 seconds, but the simulation was ran adopting $dt=0.1$]
-![](d0=20/movies/Cbar=0.5T=50A=1/later_dynamics.gif?raw=true)
+![](d0=20/movies/Cbar=0.5T=50A=1/with_linear_fit.gif?raw=true)
 
 Here we did not show the initial dynamics, that is strongly affected by the space discretization (see [here](initial_dynamics.md))
 

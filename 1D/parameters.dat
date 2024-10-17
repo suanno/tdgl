@@ -1,0 +1,9 @@
+dx 0.1
+dt 0.1
+A 1
+T -1
+Cave 1
+
+//N is determined by fileinit.dat first line
+//dt, A, T, Cave can be set in terminal.
+//dx is only configurable from here
