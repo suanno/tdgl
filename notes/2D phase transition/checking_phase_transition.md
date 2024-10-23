@@ -59,3 +59,4 @@ If $\bar{C}$ is lowered even more, the duration of the linear dynamics $\tau_{li
 In this way, $\bar{C}$ is fixed but the critical value $C^*$ changes.
 - **Speed up the code**: (1D) We could measure in time the minimum distance between kinks and the maximum kink width. Comparing them we can find out if two kinks are close to annhilate (so we should adopt a small dt) or no (so we can adopt an higher dt).
 But $dt$ must be lower than 1, and we are already using $dt=0.1$.
+- **Asymmetric** initial state: in the article of H. Tanaka, we see droplet-like spinodal decomposition. Maybe this phase transition happens only for droplet-like decomposition and not for bicontinuos.
