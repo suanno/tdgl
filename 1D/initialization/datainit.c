@@ -2,97 +2,120 @@
 //#include <fstream.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/stat.h>
 #include<math.h>
 #include<stdlib.h>
 #include<omp.h>
-#include <time.h>
 
 #define pi  4*atan(1.0)
+#define num_obs 4
 
 //pour générer des nombres aléatoires
-double randU(double randmin, double randmax)
+float randU(float randmin, float randmax)
 {
-double randU1=0.;
-randU1 = randmin*(1-rand()/(double)RAND_MAX)+randmax*rand()/(double)RAND_MAX;
+float randU1=0.;
+randU1 = randmin*(1-rand()/(float)RAND_MAX)+randmax*rand()/(float)RAND_MAX;
 return randU1;
 }
 
 int main(int argc, char  *argv [ ]){
-/*Generate N unif r.v. with average hmoy and amplitude eps*/
-
 
 int i;
+int j;
 
-int N=1000;
-double deca;
-double eps = 0;
-double hmoy = 0;
-int seed;
+double L, dx, dt; int N;    /*Lattice parameters*/
+double u0;                  /*Roughness of the initial state (centered in u=0)*/
+char* simul_name;           /*Name of the folder of savings*/
+double hmoy = 0.0;          /*Center of the initial state (default u = 0)*/
 
+
+/* Read CMD parameters */
 char *ptr;
-if (argc > 1)
-	N = (int)strtod(argv[1], &ptr);
-if (argc > 2)
-  	eps = strtod(argv[2], &ptr);
-if (argc > 3)
-    hmoy = strtod(argv[3], &ptr);
-
-/*Read parameters from parameters.txt.
-  Those are the used parameters, unless specified in the prompt
+int n_args = 3;         /*Number of required arguments*/
+                        /*L, u0, simulation name*/
+if (argc <= n_args){
+    printf("Not enought input arguments");
+    return 0;
+}
+N = (int)strtod(argv[1], &ptr);
+u0 = strtod(argv[2], &ptr);
+simul_name = argv[3];
+/*
+if (argc > n_args + 1)
+    hmoy = strtod(argv[n_args + 1], &ptr);
 */
-double dx, dt, Ampl, Thalf, Cave;
+
+/* Read parameters from params.txt */
 FILE *fileparams;
-fileparams = fopen("parameters.dat", "r");
-fscanf(fileparams, "dx %lf\ndt %lf\nA %lf\nT %lf\nCave %lf", &dx, &dt, &Ampl, &Thalf, &Cave);
+fileparams = fopen("params.txt", "r");
+fscanf(fileparams, "dx = %lf\ndt = %lf", &dx, &dt);
 fclose(fileparams);
 
-/*Prepare the initial state*/
-FILE *fileinit;
-double* u = malloc(N*sizeof(double));
+L = N*dx;
+printf("New dx = %lf\n", dx);
 
-seed = time(NULL);
-srand(seed);
-fileinit = fopen("fileinit.dat", "w");
-fprintf(fileinit, "%d %d\n", seed, N);
-#pragma omp parallel for
+/* Prepare the save folder */
+FILE* filestate;
+FILE* fileinit;
+double x, y;
+char* save_dir = malloc(strlen(".saves")+1+strlen(simul_name));
+strcpy(save_dir, ".saves/"); /* copy name into the new var */
+strcat(save_dir, simul_name); /* add the extension */
+mkdir(save_dir, 0700);
+/* Prepare the initial state */
+char* state_dir = malloc(strlen(save_dir)+1+strlen("state.dat"));
+strcpy(state_dir, save_dir);
+strcat(state_dir, "/state.dat");
+filestate = fopen(state_dir, "w");
+/*Backup the initial state (init.dat)*/
+strcpy(state_dir, save_dir);
+strcat(state_dir, "/init.dat");
+fileinit = fopen(state_dir, "w");
+fprintf(fileinit, "%d %lf %lf\n", N, 0.0, dx);
+fprintf(filestate, "%d %lf %lf\n", N, 0.0, dx);
+//#pragma omp parallel for  /*I want the x,y to be SORTED in the state.dat file. So no parallel!*/
 for (i=0; i<N; i++){
-    deca=randU(-eps, eps)+hmoy;
-    u[i] = deca;
-    fprintf(fileinit, "%.20f\n", u[i]);
+    for (j=0; j<N; j++){
+        x = i*dx;
+        y = j*dx;
+        fprintf(fileinit, "%.5f %.5f %.20f\n", x, y, randU(hmoy - u0, hmoy + u0));
+        fprintf(filestate, "%.5f %.5f %.20f\n", x, y, randU(hmoy - u0, hmoy + u0));
+    }
 }
-
+printf("State prepared at: %s\n", state_dir);
+free(state_dir);
 fclose(fileinit);
+fclose(filestate);
+/* Copy parameters file */
+char* params_dir = malloc(strlen(".saves")+1+strlen(simul_name)+1+strlen("params.txt"));
+strcpy(params_dir, save_dir);
+strcat(params_dir, "/params.txt");
+fileinit = fopen(params_dir, "w");
+fprintf(fileinit, "dx = %lf\ndt = %lf", dx, dt);
+free(params_dir);
 
-/*Save the state in tdgl_results*/
-FILE *filetdglinit;
-double decax, decau, tmin;
-tmin = 0;
-
-filetdglinit = fopen("tdgl_result.dat", "w");
-/*Save parameters N, tmax, dx, dt, seed*/
-fprintf(filetdglinit, "%d %.10lf %.10lf %.10lf %d %lf %lf %lf\n", N, tmin, dx, dt, seed, Ampl, Thalf, Cave);
-for(i=0;i<N;i++) {
-decax=i*dx;
-decau=u[i];
-fprintf(filetdglinit, "%.5f %.20f\n", decax, decau);
+/* Prepare observable folders */
+char observables[num_obs][20] = {"/fileQ2.dat", "/fileGrad2.dat", "/fileCout.dat", "/fileAveout.dat"};
+for (int i = 0; i < num_obs; i++){
+    char* obs_dir = malloc(strlen(save_dir)+1+strlen(observables[i]));
+    strcpy(obs_dir, save_dir);
+    strcat(obs_dir, observables[i]);
+    fileinit = fopen(obs_dir, "w");
+    fclose(fileinit);
+    free(obs_dir);
 }
-fclose(filetdglinit);
-
-/*Recreate fileCout of values of C(t) [Progressive
-executions of the dynamics will APPEND info]*/
-FILE *file;
-file = fopen("fileCout.dat", "w");
-fclose(file);
-file = fopen("fileAveout.dat", "w");
-fclose(file);
-file = fopen("fileq2Aveout.dat", "w");
-fclose(file);
-file = fopen("filegrad2.dat", "w");
-fclose(file);
-file = fopen("fileumax.dat", "w");
-fclose(file);
+free(save_dir);
 
 
-return 0;
+/*
+fileinit = fopen("fileGrad2.dat", "w");
+fclose(fileinit);
+fileinit = fopen("fileCout.dat", "w");
+fclose(fileinit);
+fileinit = fopen("fileAveout.dat", "w");
+fclose(fileinit);
+fileinit = fopen("stateFFT.dat", "w");
+fclose(fileinit);
+*/
 
 }
