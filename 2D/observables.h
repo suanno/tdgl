@@ -2,7 +2,7 @@
 #define HEADER_H
 #include <stdio.h>
 
-#define D 1 //Dimension of the problem
+#define D 2 //Dimension of the problem
 #define pi 4*atan(1.0)
 
 double calcq2ave(double** hfr, double** hfi, double** q2, int N);
