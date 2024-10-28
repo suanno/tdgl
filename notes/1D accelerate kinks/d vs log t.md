@@ -29,8 +29,14 @@ so the minimum duration of the simulation $t\sim t_c$.
 An idea could be changing the parameters A,C0,T in order to have a **much faster** decay, meaning a lower value of $t_c$ for large distances.
 In this way, we can simulate scenarios starting from large distances.
 - T=30
-![](d%20vs%20log%20t/longer_tail_bis.png?raw=true)
+![](d%20vs%20log%20t/T=30/main.png?raw=true)
+![](d%20vs%20log%20t/T=30/slopes.png?raw=true)
+![](d%20vs%20log%20t/T=30/tau.png?raw=true)
 - T=50
-![](d%20vs%20log%20t/long_tail_tris.png?raw=true)
+![](d%20vs%20log%20t/T=50/main.png?raw=true)
+![](d%20vs%20log%20t/T=50/slope.png?raw=true)
+![](d%20vs%20log%20t/T=50/tau.png?raw=true)
 - T=100
-![](d%20vs%20log%20t/long_tail_quatris.png?raw=true)
+![](d%20vs%20log%20t/T=100/main.png?raw=true)
+![](d%20vs%20log%20t/T=100/slope.png?raw=true)
+![](d%20vs%20log%20t/T=100/tau.png?raw=true)
