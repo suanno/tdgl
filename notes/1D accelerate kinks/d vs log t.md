@@ -40,3 +40,7 @@ In this way, we can simulate scenarios starting from large distances.
 ![](d%20vs%20log%20t/T=100/main.png?raw=true)
 ![](d%20vs%20log%20t/T=100/slope.png?raw=true)
 ![](d%20vs%20log%20t/T=100/tau.png?raw=true)
+
+## C > 0 constant
+![](./d%20vs%20log%20t/C%20cost/decay.png?raw=true)
+![](./d%20vs%20log%20t/C%20cost/prefactor_slope.png?raw=true)
