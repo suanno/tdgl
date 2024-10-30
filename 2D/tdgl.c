@@ -151,6 +151,9 @@ double* Times = malloc(num_saves*sizeof(double)); /*Times of saves*/
 double* Cout = malloc(num_saves*sizeof(double)); /*Times of saves*/
 //double* Ave = malloc(num_saves*sizeof(double)); /*Average magnetization*/
 double* q2Ave = malloc(num_saves*sizeof(double)); /*Average magnetization*/
+double* totlenght = malloc(num_saves*sizeof(double)); /*Average magnetization*/
+double* ellDW = malloc(num_saves*sizeof(double));
+double* structure_fac = malloc(N*sizeof(double));
 //double* integ_grad2 = malloc(num_saves*sizeof(double)); /*Average magnetization*/
 //double* R2 = malloc(num_saves*sizeof(double)); /*Average of R2 weighted on grad2*/
 //double weight_sum = 0;  /*Sum of the weights*/
@@ -261,6 +264,9 @@ for(loop=0;loop<nloop;loop++) {
         Times[index_saves] = time;
         Cout[index_saves] = C[loop];
         q2Ave[index_saves] = calcq2ave(hfr, hfi, q2, N);
+        totlenght[index_saves] = calcCauchyCrofton(h, N, dx);
+        
+
         //printf("%d / %d\n",loop, nloop);
         index_saves = index_saves + 1;
         //printf("C(%lf) = %lf; ", time, Cout[index_saves-1]);
@@ -274,9 +280,15 @@ printf("\n Saving... tmax = %lf\n", tmax);
 
 writeState(state_dir,h,N,dx,tmax);
 
+/*Calculate the structure factor*/
+
 FILE* observables_file;
 save_observable(observables_file, save_dir, "fileQ2.dat", Times, q2Ave, num_saves, 1);
+save_observable(observables_file, save_dir, "fileTotlenght.dat", Times, totlenght, num_saves, 1);
+save_observable(observables_file, save_dir, "fileDW.dat", Times, ellDW, num_saves, 1);
 save_observable(observables_file, save_dir, "fileCout.dat", Times, Cout, num_saves, 1);
+calcstructure_fact(hfr, hfi, N, structure_fac);
+save_observable(observables_file, save_dir, "fileSq.dat", qfr, structure_fac, N, 0);
 
 fftw_destroy_plan(pf);
 fftw_destroy_plan(pb);
